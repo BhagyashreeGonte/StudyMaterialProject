@@ -2,7 +2,6 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Registration from "@/components/Registration.vue";
 import Login from "@/components/Login.vue";
-import ForgotPassword from "@/components/ForgotPassword.vue";
 import Dashboard from "@/components/Dashboard.vue";
 import StudyMaterial from "@/components/StudyMaterial.vue";
 
@@ -19,11 +18,6 @@ Vue.use(VueRouter)
     path: '/',
     name: 'login',
     component: Login
-  },
-  {
-    path: '/forgot-password',
-    name: 'forgot-password',
-    component: ForgotPassword
   },
   {
     path: '/dashboard/:userid',
