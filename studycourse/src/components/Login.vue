@@ -1,11 +1,10 @@
 <template>
-<section class="confirm-line-haul-connection">
+<section class="log-in">
   <div class="animated fadeInDown">
     <br>
-    <vue-element-loading spinner="line-scale" color="#FF6700" :active.sync="isLoading" is-full-screen />
     <fieldset>
       <div class="card-body1" style="width:50%;margin-left: 25%;">
-        <form v-on:submit.prevent="onSubmit">
+        <form>
           <legend>
             <center>Sign In</center>
           </legend><br>
@@ -13,13 +12,15 @@
             <div class="form-group row">
               <div class="col-md-6">
                 <label>Email</label>
-                <input ref="email" type='email' v-model="email" v-bind:class="{'form-control': true }" name="email" placeholder="Enter MailId">
+                <input ref="email" type='email' v-model="email" v-bind:class="{'form-control': true }" name="email" placeholder="Enter MailId"><br>
+                <span>{{emailerror}}</span>
               </div>
             </div>
             <div class="form-group row">
               <div class="col-md-6">
                 <label>Password</label>
                 <input ref="password" type='password' v-model="password" v-bind:class="{'form-control': true }" name="password" placeholder="Enter password">
+                <span>{{passerror}}</span>
               </div>
             </div>
             <div class="row" style="float:right">
@@ -35,32 +36,6 @@
           </fieldset>
         </form>
       </div>
-      <div class="card-body1" v-if="showTable==true">
-        <legend>Shipment Details</legend>
-        <vue-element-loading spinner="line-scale" color="#FF6700" :active.sync="isLoadingSearch" />
-        <div style="overflow: auto; height: 200px;margin-top: 20px;">
-          <table class="table-bordered table-hover tbl datatables" style="width:100%;">
-            <thead>
-              <tr class="text-primary">
-                <th class="text-center tableheader">shippingID</th>
-                <th class="text-center tableheader">Shipment Status</th>
-                <th class="text-center tableheader">Status</th>
-                <th class="text-center tableheader">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="text-center">{{shipmentDetails.shippingid}}</td>
-                <td class="text-center">{{shipmentDetails.shipmentstatus}}</td>
-                <td class="text-center">{{shipmentDetails.status}}</td>
-                <td class="text-center">
-                  <span class="badge badge-success" style="cursor: pointer;" @click="ConfirmShipmentShortageMark">Mark Shortage</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </fieldset>
   </div>
 </section>
@@ -68,48 +43,14 @@
 
 <script>
 import axios from 'axios'
-import Paginate from 'vuejs-paginate'
-import {
-  Validator
-} from 'vee-validate'
-import DatePicker from 'vue2-datepicker'
-import CryptoJS from 'crypto-js';
-import moment from 'moment'
-import {
-  BasicSelect
-} from 'vue-search-select';
-import VueElementLoading from 'vue-element-loading';
-import Printd from 'printd'
 
 export default {
-  components: {
-    VueElementLoading
-  },
   data() {
     return {
       email: "",
       password: "",
       userid: '',
-      hubName: "",
-      showTable: false,
-      isLoadingSearch: false,
-      isLoading: false,
-      isDisplay: true,
-      shippingid: "",
-      shipmentDetails: {
-        shippingid: "",
-        shipmentstatus: "",
-        status: ""
-      },
-      ConfirmShipmentShortage: false,
-      isDisabledOK: false
-    }
-  },
-  filters: {
-    moment: function(date) {
-      if (date == null || date == '')
-        return '--'
-      return moment(date).format('DD-MM-YYYY HH:mm:ss');
+      hubName: ""
     }
   },
   methods: {
@@ -136,84 +77,11 @@ export default {
           console.error(error)
         })
     },
-    onSubmit: function() {},
-    loadShipmentDetails() {
-      this.isLoadingSearch = true
-      this.input = {}
-      axios({
-          method: 'GET',
-          'url': apiUrl.allocateRuleapi_url + 'getShipmentDetailsToMarkShortage?ShippingID=' + this.shippingid,
-          headers: {
-            'Authorization': 'authkey xB84JJ89Hd25'
-          }
-        })
-        .then(result => {
-          var response = result.data
-          if (response.ResultCode == 100) {
-            if (response.ResponseData) {
-              this.isLoadingSearch = false;
-              this.showTable = true;
-              this.shipmentDetails = response.ResponseData;
-            }
-          } else {
-            this.shipmentDetails = {};
-            this.isLoadingSearch = false;
-            this.showTable = false;
-            this.$alertify.error(result.data.ReturnMessage)
-          }
-          this.isLoading = false
-        }, error => {
-          console.log(error)
-        })
-    },
-    ConfirmShipmentShortageMark() {
-      this.ConfirmShipmentShortage = true;
-    },
-    CloseConfirmation() {
-      this.ConfirmShipmentShortage = false;
-    },
-    MarkShipmentShortage(shipmentDetails) {
-      this.isDisabledOK = true
-      this.input = ({
-        "processLocation": this.hubId,
-        "shipmentStatus": shipmentDetails.shipmentstatus,
-        "status": shipmentDetails.status,
-        "lastModifiedBy": this.useremail,
-        "shippingId": shipmentDetails.shippingid,
-        "isManualEntry": false,
-        "shipmentCurrentHub": shipmentDetails.currenthubid
-      });
-      axios({
-          method: 'POST',
-          'url': apiUrl.api_url_hubops + 'markShipmentShortage',
-          'data': this.input,
-          headers: {
-            'authorization': 'authkey xB84JJ89Hd25'
-          }
-        })
-        .then(result => {
-          this.isDisabledOK = false
-          if (result.data.ResultCode == 100) {
-            this.$alertify.success(result.data.ReturnMessage)
-            this.ConfirmShipmentShortage = false;
-            this.resetForm()
-          } else {
-            this.$alertify.error(result.data.ReturnMessage);
-            this.ConfirmShipmentShortage = false;
-
-          }
-        }, error => {
-          console.error(error)
-        })
-    },
     resetForm() {
-      this.isDisabledOK = false
-      this.shippingid = "";
-      this.shipmentDetails = {};
-      this.isLoadingSearch = false;
-      this.showTable = false;
-      this.$validator.reset();
-      this.errors.clear();
+      this.email = "";
+      this.emailerror = '';
+      this.passerror = '';
+      this.password = '';
     },
   }
 }
