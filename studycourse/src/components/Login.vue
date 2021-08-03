@@ -67,11 +67,12 @@ export default {
         .then(result => {
           console.log(result)
           if (result.data.ResultCode == 100) {
+          alert(result.data.ReturnMessage)
             this.userid = result.data.ResponseData
             let path = this.$router.resolve("/Dashboard/" + this.userid)
             window.open(path.href, '_self');
           } else {
-            alert('ND')
+            alert(result.data.ReturnMessage)
           }
         }, error => {
           console.error(error)
