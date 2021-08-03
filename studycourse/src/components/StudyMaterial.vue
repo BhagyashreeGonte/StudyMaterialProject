@@ -1,5 +1,5 @@
 <template>
-<section class="confirm-line-haul-connection">
+<section class="study-material">
   <div class="animated fadeInDown">
     <br>
     <div class="container-fluid">
@@ -24,17 +24,6 @@
 
 <script>
 import axios from 'axios'
-import Paginate from 'vuejs-paginate'
-import {
-  Validator
-} from 'vee-validate'
-import DatePicker from 'vue2-datepicker'
-import CryptoJS from 'crypto-js';
-import moment from 'moment'
-import {
-  BasicSelect
-} from 'vue-search-select';
-import Printd from 'printd'
 
 
 export default {
@@ -48,39 +37,12 @@ export default {
       count: 0,
       final: '',
       pdfurl: '',
-      file: null,
-      date: moment(60 * 10 * 1000),
-      timerCount: 30,
-      fname: "",
-      mname: "",
-      lname: "",
-      mobile: "",
-      email: "",
-      password: "",
-      hubName: "",
       counter: 0,
     }
   },
-  filters: {
-    moment: function(date) {
-      if (date == null || date == '')
-        return '--'
-      return moment(date).format('DD-MM-YYYY HH:mm:ss');
-    }
-  },
   mounted() {
-  var iframe = document.getElementsByTagName('iframe')[0],
-    iDoc = iframe.contentWindow
-        || iframe.contentDocument;
-
-  iDoc.addEventListener("scroll", function () {
-      console.log("loaded");
-  });
 
   var documentAtBottom = (document.documentElement.scrollTop + window.innerHeight) >= document.documentElement.scrollHeight;
-  if(documentAtBottom){
-  alert("here")
-  }
     if (this.count == 0) {
       this.final = '00:00:00'
     }
@@ -88,7 +50,6 @@ export default {
     this.userid = this.$route.params.userid;
     this.getPDFDetails();
     let counter = setInterval(() => {
-      console.log(this.count, "before")
       if (this.count > 0) {
         this.count--;
         localStorage.setItem(this.smid, this.count);
@@ -113,9 +74,9 @@ export default {
         })
         .then(result => {
           if (result.data.ResultCode == 100) {
-            console.log("done")
+            alert(result.data.ReturnMessage)
           } else {
-            console.log("Not done")
+            alert(result.data.ReturnMessage)
           }
         }, error => {
           console.error(error)
@@ -145,7 +106,7 @@ export default {
             }
             this.subject = result.data.ResponseData[0].subject;
           } else {
-            this.hubName = '';
+            alert(result.data.ReturnMessage)
           }
         }, error => {
           console.error(error)
