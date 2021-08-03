@@ -1,8 +1,7 @@
 <template>
-<section class="confirm-line-haul-connection">
+<section class="dashboard">
   <div class="animated fadeInDown">
     <br>
-    <vue-element-loading spinner="line-scale" color="#FF6700" :active.sync="isLoading" is-full-screen />
     <div class="container-fluid">
       <fieldset>
         <div class="lclass">
@@ -11,7 +10,6 @@
         </div><br><br>
         <div class="card-body1">
           <fieldset style="border:1px solid black;background-color: #ffffff;padding-top: 50px;padding-right: 40px;  padding-left: 40px; padding-bottom:20px">
-            <vue-element-loading spinner="line-scale" color="#FF6700" :active.sync="isLoadingSearch" />
             <div class="row" style="height:300px; overflow:auto">
               <div class="col-md-12">
                 <template>
@@ -36,8 +34,6 @@
                       </tr>
                     </tbody>
                   </table>
-                  <paginate v-if="listCount!=0" :page-count="pageCount" :page-range="2" :margin-pages="2" :click-handler="getPaginationDataForStudyList" :prev-text="'Prev'" :next-text="'Next'" :container-class="'pagination'">
-                  </paginate>
                 </template>
               </div>
             </div>
@@ -52,18 +48,7 @@
 <script>
 import apiUrl from '../assets/constants'
 import axios from 'axios'
-import Paginate from 'vuejs-paginate'
-import {
-  Validator
-} from 'vee-validate'
-import DatePicker from 'vue2-datepicker'
-import CryptoJS from 'crypto-js';
-import moment from 'moment'
-import {
-  BasicSelect
-} from 'vue-search-select';
-import VueElementLoading from 'vue-element-loading';
-import Printd from 'printd'
+
 
 
 export default {
@@ -77,31 +62,7 @@ export default {
       pageNo: 0,
       pageCount: 0,
       studyData: [],
-      isLoadingSearch: false,
-      isLoading: false,
     }
-  },
-  filters: {
-    moment: function(date) {
-      if (date == null || date == '')
-        return '--'
-      return moment(date).format('DD-MM-YYYY HH:mm:ss');
-    }
-  },
-  watch: {
-    timerCount: {
-      handler(value) {
-
-        if (value > 0) {
-          setTimeout(() => {
-            this.timerCount--;
-          }, 1000);
-        }
-
-      },
-      immediate: true // This ensures the watcher is triggered upon creation
-    }
-
   },
   mounted() {
     this.userid = this.$route.params.userid;
@@ -121,11 +82,10 @@ export default {
           url: 'http://localhost:8000/api/getStudyMaterial?userId=' + this.userid,
         })
         .then(result => {
-          console.log(result, "___________")
           if (result.data.ResultCode == 100) {
             this.studyData = result.data.ResponseData;
           } else {
-            this.hubName = '';
+            alert(result.data.ReturnMessage)
           }
         }, error => {
           console.error(error)
@@ -164,10 +124,6 @@ export default {
         }, error => {
           console.error(error)
         })
-    },
-    getPaginationDataForStudyList(pageNum) {
-      this.pageNo = (pageNum - 1);
-      this.getStudyMaterailList();
     },
     openPDF(data) {
       let path = this.$router.resolve("/StudyMaterial/" + data.smid + "/" + this.userid)
