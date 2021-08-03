@@ -11,33 +11,39 @@
               <div class="form-group row">
                 <div class="col-md-4">
                       <label>First Name</label>
-                      <input ref="fname" v-model="fname" v-bind:class="{'form-control': true }" name="fname" placeholder="Enter First Name">
+                      <input ref="fname" v-model="fname" v-bind:class="{'form-control': true }" name="fname" placeholder="Enter First Name"><br>
+		      <span>{{fnameerror}}</span>
                 </div>
                 <div class="col-md-4">
                       <label>Middle Name</label>
-                      <input ref="mname" v-model="mname" v-bind:class="{'form-control': true }" name="mname" placeholder="Enter Middle Name">
+                      <input ref="mname" v-model="mname" v-bind:class="{'form-control': true }" name="mname" placeholder="Enter Middle Name"><br>
+		      <span>{{mnameerror}}</span>
                 </div>
                 <div class="col-md-4">
                       <label>Last Name</label>
-                      <input ref="lname" v-model="lname" v-bind:class="{'form-control': true }" name="lname" placeholder="Enter Last Name">
+                      <input ref="lname" v-model="lname" v-bind:class="{'form-control': true }" name="lname" placeholder="Enter Last Name"><br>
+		      <span>{{lnameerror}}</span>
                 </div>
                 </div>
                 <div class="form-group row">
                   <div class="col-md-6">
                         <label>Email</label>
-                        <input ref="email" type='email' v-model="email" v-bind:class="{'form-control': true }" name="email" placeholder="Enter MailId">
+                        <input ref="email" type='email' v-model="email" v-bind:class="{'form-control': true }" name="email" placeholder="Enter MailId"><br>
+			<span>{{emailerror}}</span>
                   </div>
                   </div>
                   <div class="form-group row">
                     <div class="col-md-6">
                           <label>Mobile No</label>
-                          <input ref="mobile" v-model="mobile" v-bind:class="{'form-control': true }" name="mobile" placeholder="Enter Mobile">
+                          <input ref="mobile" v-model="mobile" v-bind:class="{'form-control': true }" name="mobile" placeholder="Enter Mobile"><br>
+			  <span>{{mobileerror}}</span>
                     </div>
                     </div>
                     <div class="form-group row">
                       <div class="col-md-6">
                             <label>Password</label>
-                            <input ref="password" type= "password" v-model="password" v-bind:class="{'form-control': true }" name="password" placeholder="Enter password">
+                            <input ref="password" type= "password" v-model="password" v-bind:class="{'form-control': true }" name="password" placeholder="Enter password"><br>
+			    <span>{{passerror}}</span>
                       </div>
                       </div>
                 <div class="row" style="float:right">
@@ -53,32 +59,6 @@
               </fieldset>
         </form>
       </div>
-      <div class="card-body1" v-if="showTable==true">
-        <legend>Shipment Details</legend>
-          <vue-element-loading spinner="line-scale" color="#FF6700" :active.sync="isLoadingSearch" />
-          <div style="overflow: auto; height: 200px;margin-top: 20px;">
-            <table class="table-bordered table-hover tbl datatables" style="width:100%;">
-              <thead>
-                <tr class="text-primary">
-                  <th class="text-center tableheader">shippingID</th>
-                  <th class="text-center tableheader">Shipment Status</th>
-                  <th class="text-center tableheader">Status</th>
-                  <th class="text-center tableheader">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="text-center">{{shipmentDetails.shippingid}}</td>
-                  <td class="text-center">{{shipmentDetails.shipmentstatus}}</td>
-                  <td class="text-center">{{shipmentDetails.status}}</td>
-                      <td class="text-center">
-                        <span class="badge badge-success" style="cursor: pointer;" @click="ConfirmShipmentShortageMark">Mark Shortage</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-      </div>
     </fieldset>
   </div>
 </section>
@@ -87,18 +67,6 @@
 
 <script>
 import axios from 'axios'
-import Paginate from 'vuejs-paginate'
-import {
-	Validator
-} from 'vee-validate'
-import DatePicker from 'vue2-datepicker'
-import CryptoJS from 'crypto-js';
-import moment from 'moment'
-import {
-	BasicSelect
-} from 'vue-search-select';
-import VueElementLoading from 'vue-element-loading';
-import Printd from 'printd'
 
     export default {
       components: {
@@ -112,52 +80,40 @@ import Printd from 'printd'
         mobile:"",
         email:"",
         password:"",
-        hubName: "",
-  			showTable: false,
-  			isLoadingSearch: false,
-  			isLoading: false,
-  			isDisplay: true,
-  			shippingid: "",
-  			shipmentDetails: {
-  				shippingid: "",
-  				shipmentstatus: "",
-  				status: ""
-  			},
-  			ConfirmShipmentShortage: false,
-  			isDisabledOK: false
+	fnameerror:"",
+        mnameerror:"",
+        lnameerror:"",
+        mobileerror:"",
+        emailerror:"",
+        passerror:""
         }
       },
-      filters: {
-    		moment: function(date) {
-    			if (date == null || date == '')
-    				return '--'
-    			return moment(date).format('DD-MM-YYYY HH:mm:ss');
-    		}
-    	},
       methods: {
-    		getHubName(hubid) {
-    			this.input = {
-    				hubids: hubid
-    			}
-    			axios({
-    					method: 'POST',
-    					url: apiUrl.api_url_hubops + 'expose/hubservicecenter/hubarray/get',
-    					data: this.input,
-    					headers: {
-    						'authorization': 'authkey xB84JJ89Hd25',
-    					}
-    				})
-    				.then(result => {
-    					if (result.data.ResultCode == 100) {
-    						this.hubName = result.data.ResponseData[0].HubName;
-    					} else {
-    						this.hubName = '';
-    					}
-    				}, error => {
-    					console.error(error)
-    				})
-    		},
     		onSubmit: function() {
+		if(!this.fname){
+    this.fnameerror="first name is required"
+    return false
+    }
+    if(!this.mname){
+    this.mnameerror="middle name is required"
+    return false
+    }
+    if(!this.lname){
+    this.lnameerror="last name is required"
+    return false
+    }
+    if(!this.email){
+    this.emailerror="email id is required"
+    return false
+    }
+    if(!this.mobile){
+    this.mobileerror="mobile is required"
+    return false
+    }
+    if(!this.password){
+    this.passerror="password id is required"
+    return false
+    }
         this.input = {
         firstName: this.fname,
         middleName: this.mname,
@@ -175,89 +131,25 @@ import Printd from 'printd'
             if (result.data.ResultCode == 100) {
             alert(result.data.ReturnMessage)
             } else {
-              alert("Not done")
+              alert(result.data.ReturnMessage)
             }
           }, error => {
             console.error(error)
           })
     		},
-    		loadShipmentDetails() {
-    			this.isLoadingSearch = true
-    			this.input = {}
-    			axios({
-    					method: 'GET',
-    					'url': apiUrl.allocateRuleapi_url + 'getShipmentDetailsToMarkShortage?ShippingID=' + this.shippingid,
-    					headers: {
-    						'Authorization': 'authkey xB84JJ89Hd25'
-    					}
-    				})
-    				.then(result => {
-    					var response = result.data
-    					if (response.ResultCode == 100) {
-    						if (response.ResponseData) {
-    							this.isLoadingSearch = false;
-    							this.showTable = true;
-    							this.shipmentDetails = response.ResponseData;
-    						}
-    					} else {
-    						this.shipmentDetails = {};
-    						this.isLoadingSearch = false;
-    						this.showTable = false;
-    						this.$alertify.error(result.data.ReturnMessage)
-    					}
-    					this.isLoading = false
-    				}, error => {
-    					console.log(error)
-    				})
-    		},
-    		ConfirmShipmentShortageMark() {
-    			this.ConfirmShipmentShortage = true;
-    		},
-    		CloseConfirmation() {
-    			this.ConfirmShipmentShortage = false;
-    		},
-    		MarkShipmentShortage(shipmentDetails) {
-    			this.isDisabledOK = true
-    			this.input = ({
-    				"processLocation": this.hubId,
-    				"shipmentStatus": shipmentDetails.shipmentstatus,
-    				"status": shipmentDetails.status,
-    				"lastModifiedBy": this.useremail,
-    				"shippingId": shipmentDetails.shippingid,
-    				"isManualEntry":false,
-    				"shipmentCurrentHub":shipmentDetails.currenthubid
-    			});
-    			axios({
-    					method: 'POST',
-    					'url': apiUrl.api_url_hubops + 'markShipmentShortage',
-    					'data': this.input,
-    					headers: {
-    						'authorization': 'authkey xB84JJ89Hd25'
-    					}
-    				})
-    				.then(result => {
-    					this.isDisabledOK = false
-    					if (result.data.ResultCode == 100) {
-    						this.$alertify.success(result.data.ReturnMessage)
-    						this.ConfirmShipmentShortage = false;
-    						this.resetForm()
-    					} else {
-    						this.$alertify.error(result.data.ReturnMessage);
-    						this.ConfirmShipmentShortage = false;
-
-    					}
-    				}, error => {
-    					console.error(error)
-    				})
-    		},
     		resetForm() {
-    			this.isDisabledOK = false
-    			this.shippingid = "";
-    			this.shipmentDetails = {};
-    			this.isLoadingSearch = false;
-    			this.showTable = false;
-    			this.$validator.reset();
-    			this.errors.clear();
+    			this.fname = "";
+			this.mname = "";
+			this.lname = "";
+			this.email = "";
+			this.mobile = "";
+			this.password = "";
+			this.fnameerror = "";
+			this.mnameerror = "";
+			this.lnameerror = "";
+			this.emailerror = "";
+			this.mobileerror = "";
+			this.passerror = "";
     		},
     	}
     }
