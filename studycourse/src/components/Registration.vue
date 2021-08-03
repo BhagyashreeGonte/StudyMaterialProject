@@ -1,8 +1,7 @@
 <template>
-<section class="confirm-line-haul-connection">
+<section class="create-user">
   <div class="animated fadeInDown">
     <br>
-    <vue-element-loading spinner="line-scale" color="#FF6700" :active.sync="isLoading" is-full-screen />
     <fieldset>
       <div class="card-body1" style="width:50%;margin-left: 25%;">
         <form v-on:submit.prevent="onSubmit">
